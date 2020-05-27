@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+var request = require('request');
 var app = express(),
     port = 3070;
 
@@ -16,7 +17,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.get("/", function(req, res) {
-    res.send("Welcome to My Retail !!");
+	request('https://redsky.target.com/v2/pdp/tcin/13860428?excludes=taxonomy,price,promotion,bulk_ship,rating_and_review_reviews,rating_and_review_statistics,question_answer_statistics', function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+        res.send(body) // Print the google web page.
+     }else{
+res.send("Welcome to My Retail !!");
+     }
+})
+   // res.send("Welcome to My Retail !!");
 });
 
 app.get("/api/products", function(req, res) {
@@ -62,6 +70,10 @@ products.splice(index,1);
  
 res.send(product);
 });
+
+
+
+
 
 app.listen(port, function(err) {
      console.log("running server on from port:::::::" + port);
