@@ -2,8 +2,9 @@
 
 #Pre requisite
 1.Node.js v10 and above
-2.MongoDb Version 4
+2.MongoDb V3.2 and above
 
 #To run the application execute the following steps
-npm i
-npm start
+clone the project
+$npm i
+$npm start
