@@ -1,5 +1,6 @@
 const Product = require('../model/retail.model.js');
 
+var request = require('request');
  const products = [
 {title: 'Washing Machine', id: 1},
 {title: 'Laptop', id: 2},
@@ -48,7 +49,7 @@ exports.create = (req, res) => {
 
 /**
 * @module retail
-* @function Retrieve and return all notes from the database.
+* @function Retrieve and return all products from the database.
 * @param req {Object} The request.
 * @param res {Object} The response.
 * @return res {Object} The list of all products
@@ -67,35 +68,100 @@ exports.findAll = (req, res) => {
 
 /**
 * @module retail
-* @function Create and save a new product
+* @function Find a single product with a productId
 * @param req {Object} The request.
 * @param res {Object} The response.
 * @return res {Object} The list of all products
 */
 // Find a single note with a noteId
 exports.findOne = (req, res) => {
-	var product = products.find(c => c.id === parseInt(req.params.id));
+	console.log("=Find One=");
+	/*var product = products.find(c => c.id === parseInt(req.params.id));
  
 	if (!product) res.status(404).send('<h2 style="font-family: Malgun Gothic; color: darkred;">Ooops... Cant find what you are looking for!</h2>');
-    res.send(product);
+    res.send(product);*/
+    request('https://redsky.target.com/v2/pdp/tcin/13860428?excludes=taxonomy,price,promotion,bulk_ship,rating_and_review_reviews,rating_and_review_statistics,question_answer_statistics', function (error, response, body) {
+	    if (!error && response.statusCode == 200) {
+	    	//console.log(body.product.available_to_promise_network.product_id);
+	    	//console.log(body.product.available_to_promise_network.product_description.title);
+	    	var obj = JSON.parse(body);
+	    	console.log(obj.product.available_to_promise_network.product_id);
+	    	console.log(obj.product.item.product_description.title);
+	    	var responseObj = {};
+	    	responseObj.id = obj.product.available_to_promise_network.product_id;
+	    	responseObj.name = obj.product.item.product_description.title;
+	    	Product.find({product_id:responseObj.id})
+				    .then(product => {
+				        if(!product[0]) {
+				            return res.status(404).send({
+				                message: "Note not found with id " + responseObj.id
+				            });            
+				        }
+				        console.log(product[0]);
+				        responseObj.current_price = {};
+				        responseObj.current_price.value = product[0].value;
+				        responseObj.current_price.currency_code = product[0].currency_code;
+
+				        res.send(responseObj);
+				    }).catch(err => {
+				        if(err.kind === 'ObjectId') {
+				            return res.status(404).send({
+				                message: "Note not found with id " + responseObj.id
+				            });                
+				        }
+				        return res.status(500).send({
+				            message: "Error retrieving note with id " + responseObj.id
+				        });
+				    });
+	     }else{
+	     	res.send("Sorry No matching product found");
+	     }
+	})
+    
+
 };
 
 /**
 * @module retail
-* @function Create and save a new product
+* @function Update a note identified by the product id in the request
 * @param req {Object} The request.
 * @param res {Object} The response.
 * @return res {Object} The list of all products
 */
-// Update a note identified by the noteId in the request
 exports.update = (req, res) => {
-	var product = products.find(c=> c.id === parseInt(req.params.id));
-	if (!product) res.status(404).send('<h2 style="font-family: Malgun Gothic; color: darkred;">Not Found!! </h2>');
+	// var product = products.find(c=> c.id === parseInt(req.params.id));
+	// if (!product) res.status(404).send('<h2 style="font-family: Malgun Gothic; color: darkred;">Not Found!! </h2>');
 	 
-	 console.log(req.body.title);
-	product.title = req.body.title;
-	res.send(product);
-};
+	//  console.log(req.body.title);
+	// product.title = req.body.title;
+	// res.send(product);
+	console.log(req.params)
+	if(!req.body) {
+        return res.status(400).send({
+            message: "Product content can not be empty"
+        });
+    }
+    var id = req.params.productId;
+    Product.update({product_id:"13860428"}, { $set: { value: req.body.value } })
+    .then(product => {
+        if(!product) {
+            return res.status(404).send({
+                message: "Product not found with id " + req.params.productId
+            });
+        }
+        res.send(product);
+    }).catch(err => {
+        if(err.kind === 'ObjectId') {
+            return res.status(404).send({
+                message: "Note not found with id " + req.params.productId
+            });                
+        }
+        console.log(err);
+        return res.status(500).send({
+            message: "Error updating product with id " + req.params.productId
+        });
+    });
+}
 
 /**
 * @module retail
@@ -106,11 +172,16 @@ exports.update = (req, res) => {
 */
 // Delete a note with the specified noteId in the request
 exports.delete = (req, res) => {
-	 var product = products.find( c=> c.id === parseInt(req.params.id));
-	 if(!product) res.status(404).send('<h2 style="font-family: Malgun Gothic; color: darkred;"> Not Found!! </h2>');
+	 // var product = products.find( c=> c.id === parseInt(req.params.id));
+	 // if(!product) res.status(404).send('<h2 style="font-family: Malgun Gothic; color: darkred;"> Not Found!! </h2>');
 	 
-	 const index = products.indexOf(product);
-	 products.splice(index,1);
+	 // const index = products.indexOf(product);
+	 // products.splice(index,1);
 	 
-	 res.send(product);
+	 // res.send(product);
+
 };
+
+var fetchRetailInfo = () => {
+	
+}

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const RetailPriceSchema = mongoose.Schema({
-	product_id: Number,
+	product_id: { type : String , unique : true, required : true, dropDups: true },
     value: Number,
     currency_code: String
 }, {

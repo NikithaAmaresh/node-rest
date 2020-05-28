@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-var request = require('request');
+//var request = require('request');
 const dbConfig = require('./config/config.js');
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
@@ -94,7 +94,8 @@ res.send("Welcome to My Retail !!");
 
 // Connecting to the database
 mongoose.connect(dbConfig.url, {
-    useNewUrlParser: true
+    useNewUrlParser: true,
+    autoIndex: true
 }).then(() => {
     console.log("Successfully connected to the database");   
 //     app.listen(port, function(err) {
