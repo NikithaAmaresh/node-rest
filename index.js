@@ -43,7 +43,7 @@ res.send("Welcome to My Retail !!");
    // res.send("Welcome to My Retail !!");
 });
 
-
+//comments
 
 // app.get("/api/products", function(req, res) {
 //     res.send(products);
