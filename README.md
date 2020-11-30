@@ -8,3 +8,4 @@
 clone the project
 $npm i
 $npm start
+#github actions
